@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Product Page - Admin HTML Template</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Roboto:400,700"
+    />
+    
+    <!-- https://fonts.google.com/specimen/Roboto -->
+    <link rel="stylesheet" href="css/fontawesome.min.css" />
+    <!-- https://fontawesome.com/ -->
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <!-- https://getbootstrap.com/ -->
+    <link rel="stylesheet" href="css/templatemo-style.css">
+   
+  </head>
+
+  <body id="reportsPage">
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/bootstrap-table.js"></script>
+    <nav class="navbar navbar-expand-xl" >
+      <div class="container h-100">
+        <a class="navbar-brand" href="#">
+          <h1 class="tm-site-title mb-0">广海核酸检测系统</h1>
+        </a>
+        <button
+          class="navbar-toggler ml-auto mr-0"
+          type="button"
+          data-toggle="collapse"
+          data-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <i class="fas fa-bars tm-nav-icon"></i>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mx-auto h-100">
+            <li class="nav-item">
+              <a class="nav-link" href="#">
+                <i class="fas fa-tachometer-alt"></i> 核酸抽样
+                <span class="sr-only">(current)</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="#">
+                <i class="far fa-file-alt"></i>排队系统
+              </a>
+            </li>
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="navbarDropdown"
+                role="button"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false">
+                <i class="fas fa-cog"></i>
+                <span> 系统设置</span>
+              </a>
+            </li>
+          </ul>
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link d-block" href="#">
+                &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<b>欢迎使用</b>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="container mt-5">
+      <div class="row tm-content-row">
+        <div class="col-sm-12 col-md-12 col-lg-8 col-xl-8 tm-block-col">
+          <div class="tm-bg-primary-dark tm-block tm-block-products" >
+            <h2 class="tm-block-title">候诊名单</h2>
+            <div class="tm-product-table-container" style="overflow-y: auto;">
+              <table id="myTable" class="table table-hover tm-table-small tm-product-table">
+                <thead>
+                  <tr>
+                    <th scope="col">&nbsp;</th>
+                    <th scope="col">预约号</th>
+                    <th scope="col">姓名</th>
+                  </tr>
+                </thead>
+                <tbody id="queueListForWating">
+                </tbody>
+              </table>
+            </div>
+            <!-- table container -->
+            <button class="btn btn-primary btn-block text-uppercase" id="waitingButton">
+              取号
+            </button>
+            <button class="btn btn-primary btn-block text-uppercase" id="visitingButton">
+              叫号
+            </button>
+          </div>
+        </div>
+        <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 tm-block-col">
+          <div class="tm-bg-primary-dark tm-block tm-block-product-categories">
+            <h2 class="tm-block-title">当前就诊</h2>
+            <div class="tm-product-table-container" style="overflow-y: auto;">
+              <table class="table tm-table-small tm-product-table">
+                <tbody id="queueListForVisiting">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div id="myModal" class="modal"  tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">录入信息</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="input-group">
+              <span class="input-group-btn">
+                  <button class="btn btn-default" type="button">姓名：</button>
+              </span>
+              <input id="input" type="text" class="form-control">
+          </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+            <button type="button" class="btn btn-primary" id="enqueue">录入</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+
+    <footer class="tm-footer row tm-mt-small">
+      <div class="col-12 font-weight-light">
+        <p class="text-center text-white mb-0 px-4 small">
+          Copyright &copy; <b>2022</b> All rights reserved. 
+          
+          Design:  <a href="#" target="_blank" title="刘大召">刘大召</a> - from <a href="http://www.cssmoban.com/" title="广东海洋大学" target="_blank">广东海洋大学</a>
+        </p>
+      </div>
+    </footer>
+
+  
+    
+
+    <script>
+      
+      // 队列
+      class Queue {
+        constructor() {
+          this.count = 0; //最新的
+          this.lowestCount = 0; //最旧的
+          this.items = {};
+        }
+
+        // 向队列添加元素
+        enqueue(element) {
+          this.items[this.count] = element;
+          this.count++;
+        }
+
+        // 从队列中移除元素
+        dequeue() {
+          if (this.isEmpty()) {
+            return undefined;
+          }
+          const result = this.items[this.lowestCount];
+          delete this.items[this.lowestCount];
+          this.lowestCount++;
+          return result;
+        }
+
+        // 查看队列的第一个元素
+        peek() {
+          if (this.isEmpty()) {
+            return undefined;
+          }
+          return this.items[this.lowestCount];
+        }
+
+        // 查看队列是否为空
+        isEmpty() {
+          return this.count - this.lowestCount === 0;
+        }
+
+        // 查看队列有多少数据
+        size() {
+          return this.count - this.lowestCount;
+        }
+
+        // 清空队列
+        clear() {
+          this.items = {};
+          this.count = 0;
+          this.lowestCount = 0;
+        }
+
+        // toString方法
+        toString() {
+          if (this.isEmpty()) {
+            return "";
+          }
+          let objString = `${this.items[this.lowestCount]}`;
+          for (let i = this.lowestCount + 1; i < this.count; i++) {
+            objString = `${objString},${this.items[i]}`;
+          }
+          return objString;
+        }
+      }
+
+
+      // 全局变量
+      var currentNumber = 1; // 当前预约号
+      var waitingQueue = new Queue(); // 候诊列表
+      var visitingQueue = new Queue(); // 就诊列表
+
+      $(function() {
+        $(".tm-product-name").on("click", function() {
+          // window.location.href = "edit-product.html";
+          console.log("click")
+        });
+
+        // 点击取号按钮
+        $("#waitingButton").click(function(){
+          $("#myModal").modal();
+          $("#input").val("")
+        });
+        
+        // 点击叫号按钮
+        $("#visitingButton").click(function(){
+          enqueueForVisting();
+        });
+
+        // 点击录入按钮
+        $("#enqueue").click(function(){
+          $("#myModal").modal("hide");
+          var name = $("#input").val();
+          enqueueForWaiting(name) // 取号-候诊入队列
+          $("#input").val("")
+        });
+
+        // 取号-候诊入队列
+        function enqueueForWaiting(patientName) {
+          var patient = {
+            number: currentNumber,
+            name: patientName
+          }
+
+          // waitingQueue.push(patient)
+          waitingQueue.enqueue(patient);
+          render(); // 渲染数据
+          currentNumber++;
+        }
+
+        // 叫号-候诊出队列-就诊入队列
+        function enqueueForVisting() {
+          if(waitingQueue.size()) {
+            var patient = waitingQueue.dequeue();
+            visitingQueue.enqueue(patient)
+            render(); // 渲染数据
+          }
+        }
+
+        // 渲染数据
+        function render() {
+          // 渲染候诊列表
+          if (waitingQueue.size()) {
+            var items = waitingQueue.items;
+            var innerHTML = '';
+            for (var i in items) {
+              var data = '<tr>' + 
+                     '<th scope="row"></th>' +
+                     '<td class="tm-product-name">' + items[i].number + '</td>' +
+                     '<td>' + items[i].name + '</td>' + 
+                     '</tr>'
+              innerHTML += data;
+            }
+            $("#queueListForWating").html(innerHTML);
+          } else {
+            $("#queueListForWating").html('');
+          }
+
+          // 渲染就诊列表
+          if (visitingQueue.size()) {
+            var items = visitingQueue.items;
+            var innerHTML = '';
+            for (var i in items) {
+              var data = '<tr>' + 
+                     '<td>' + 
+                        '<a href="#" class="tm-product-delete-link">' + 
+                          '<i class="far fa-user tm-product-delete-icon"></i>' + 
+                        '</a>' + 
+                      '</td>' +
+                     '<td class="tm-product-name">' + 
+                        items[i].number + '号' +
+                        items[i].name + 
+                      '</td>' + 
+                     '</tr>'
+              innerHTML += data;
+            }
+            $("#queueListForVisiting").html(innerHTML);
+          } else {
+            $("#queueListForVisiting").html('');
+          }
+        }
+      });
+
+    </script>
+  </body>
+</html>
