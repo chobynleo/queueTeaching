@@ -87,7 +87,7 @@
                 <thead>
                   <tr>
                     <th scope="col">&nbsp;</th>
-                    <th scope="col">预约号</th>
+                    <th scope="col">编号</th>
                     <th scope="col">姓名</th>
                   </tr>
                 </thead>
@@ -96,11 +96,11 @@
               </table>
             </div>
             <!-- table container -->
-            <button class="btn btn-primary btn-block text-uppercase" id="waitingButton">
+            <!-- <button class="btn btn-primary btn-block text-uppercase" id="waitingButton">
               取号
-            </button>
-            <button class="btn btn-primary btn-block text-uppercase" id="visitingButton">
-              叫号
+            </button> -->
+            <button class="btn btn-primary btn-block text-uppercase" id="select">
+              抽样
             </button>
           </div>
         </div>
@@ -160,6 +160,129 @@
 
     <script>
       
+      // 约瑟夫环 - 循环链表实现
+      class Node {
+        constructor(ele) {
+          this.number = ele
+          this.next = null
+          this.name = ""
+        }
+      }
+
+      class LList {
+        constructor() {
+          this.head = new Node('0')
+          this.head.next = this.head;
+          this.currentNode = this.head;
+        }
+        find(item) {
+          let currNode = this.head;
+          while (currNode.number != item) {
+            currNode = currNode.next;
+          }
+          return currNode;
+        }
+        insert(newNumber, item, name) {
+          let newNode = new Node(newNumber);
+          let current = this.find(item);
+          newNode.next = current.next;
+          current.next = newNode;
+          newNode.name = name;
+        }
+        findPrevious(item) {
+          let currNode = this.head;
+          while (!(currNode.next == null) && (currNode.next.number != item)) {
+            currNode = currNode.next;
+          }
+          return currNode;
+        }
+        remove(item) {
+          let outItem;
+          let prevNode = this.findPrevious(item);
+          if (!(prevNode.next == null)) {
+            outItem = prevNode.next
+            prevNode.next = prevNode.next.next;
+          }
+          return outItem;
+        }
+        advance(n) {
+          while (n > 0) {
+            if (this.currentNode.next.number == "0") {
+              this.currentNode = this.currentNode.next.next;
+            } else {
+              this.currentNode = this.currentNode.next;
+              n--;
+            }
+          }
+        }
+        size() {
+          let node = this.head;
+          let i = 0;
+          while (!(node.next.number == "0")) {
+            node = node.next;
+            i++;
+          }
+          return i;
+        }
+        display() {
+          let currNode = this.head;
+          while (!(currNode.next == null) && !(currNode.next.number == "0")) {
+            console.log(currNode.next.number + ",");
+            currNode = currNode.next;
+          }
+        }
+      }
+
+      
+
+      let person = new LList(); // 观察区
+      var nameList = [          // 观察区名单
+        "刘一","陈二","张三","李四", "王五,", "赵六", "孙七", "周八", "吴九", "郑十"
+      ] 
+      person.insert('0', '0', "null");
+      for (let index = 0; index < 10; index++) {
+        person.insert(`${index+1}`, `${index}`, nameList[index]);
+      }
+
+      let n = 3;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       // 队列 - 数组实现
       class Queue {
         constructor() {
@@ -204,65 +327,8 @@
         }
       }
 
-      // 队列 - 链表实现
-      class ListNode {
-        constructor(v = -1, n = null) {
-          this.val = v
-          this.next = n
-        }
-      }
-
-      class QueueByList {
-        constructor() {
-          let node = new ListNode()
-          this.front = node
-          this.rear = node
-          this.size = 0
-        }
-
-        // 向队列添加元素
-        enqueue(element) {
-          let node = new ListNode(element)
-          this.rear.next = node
-          this.rear = node
-          this.size++
-        }
-
-        // 从队列中移除元素
-        dequeue() {
-          if (!this.size) return
-          this.front = this.front.next
-          this.size--
-        }
-
-        // 查看队列的第一个元素
-        peek() {
-          if (!this.size) return
-          return this.front.next.val
-        }
-
-        // 查看队列有多少数据
-        size() {
-          return this.size
-        }
-      }
-
-
-
-
-
-
-
-
-
-
-
-
-
       // 全局变量
-      var currentNumber = 1; // 当前预约号
-      var waitingQueue = new Queue(); // 候诊列表
-      var visitingQueue = new Queue(); // 就诊列表
+      var visitingQueue = new Queue(); // 检测区列表
 
       $(function() {
         $(".tm-product-name").on("click", function() {
@@ -270,60 +336,49 @@
           console.log("click")
         });
 
-        // 点击取号按钮
-        $("#waitingButton").click(function(){
-          $("#myModal").modal();
-          $("#input").val("")
-        });
         
-        // 点击叫号按钮
-        $("#visitingButton").click(function(){
-          enqueueForVisting();
+        // 点击抽样按钮
+        $("#select").click(function(){
+          enqueueForSelecting()
         });
 
-        // 点击录入按钮
-        $("#enqueue").click(function(){
-          $("#myModal").modal("hide");
-          var name = $("#input").val();
-          enqueueForWaiting(name) // 取号-候诊入队列
-          $("#input").val("")
-        });
 
-        // 取号-候诊入队列
-        function enqueueForWaiting(patientName) {
-          var patient = {
-            number: currentNumber,
-            name: patientName
+        // 开局渲染数据
+        render()
+
+        // 抽样-移出观察区
+        function enqueueForSelecting() {
+          if (person.size() > 1) {
+            person.advance(n);
+            console.log(person.currentNode.number)
+            if (person.currentNode.number != "0") {
+              var patient = person.remove(person.currentNode.number);
+              visitingQueue.enqueue(patient)
+            } else {
+              person.advance(1);
+              var patient = person.remove(person.currentNode.number);
+              visitingQueue.enqueue(patient)
+            }
+            
           }
-
-          // waitingQueue.push(patient)
-          waitingQueue.enqueue(patient);
           render(); // 渲染数据
-          currentNumber++;
-        }
-
-        // 叫号-候诊出队列-就诊入队列
-        function enqueueForVisting() {
-          if(waitingQueue.size()) {
-            var patient = waitingQueue.dequeue();
-            visitingQueue.enqueue(patient)
-            render(); // 渲染数据
-          }
         }
 
         // 渲染数据
         function render() {
           // 渲染候诊列表
-          if (waitingQueue.size()) {
-            var items = waitingQueue.items;
+          if (person.size()) {
+            var items = person.items;
             var innerHTML = '';
-            for (var i in items) {
+            let currNode = person.find('0');
+            while (!(currNode.next == null) && !(currNode.next.number == "0")) {
               var data = '<tr>' + 
                      '<th scope="row"></th>' +
-                     '<td class="tm-product-name">' + items[i].number + '</td>' +
-                     '<td>' + items[i].name + '</td>' + 
+                     '<td class="tm-product-name">' + currNode.next.number + '</td>' +
+                     '<td>' + currNode.next.name + '</td>' + 
                      '</tr>'
               innerHTML += data;
+              currNode = currNode.next;
             }
             $("#queueListForWating").html(innerHTML);
           } else {
