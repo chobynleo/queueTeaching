@@ -204,6 +204,60 @@
         }
       }
 
+      // 队列 - 链表实现
+      class ListNode {
+        constructor(v = -1, n = null) {
+          this.val = v
+          this.next = n
+        }
+      }
+
+      class QueueByList {
+        constructor() {
+          let node = new ListNode()
+          this.front = node
+          this.rear = node
+          this.size = 0
+        }
+
+        // 向队列添加元素
+        enqueue(element) {
+          let node = new ListNode(element)
+          this.rear.next = node
+          this.rear = node
+          this.size++
+        }
+
+        // 从队列中移除元素
+        dequeue() {
+          if (!this.size) return
+          this.front = this.front.next
+          this.size--
+        }
+
+        // 查看队列的第一个元素
+        peek() {
+          if (!this.size) return
+          return this.front.next.val
+        }
+
+        // 查看队列有多少数据
+        size() {
+          return this.size
+        }
+      }
+
+
+
+
+
+
+
+
+
+
+
+
 
       // 全局变量
       var currentNumber = 1; // 当前预约号
