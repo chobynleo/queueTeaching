@@ -165,13 +165,14 @@
       // 队列 - 数组实现
       class Queue {
         constructor() {
-          this.rear = 0; // 尾指针
-          this.front = 0; // 头指针
-          this.items = {};
+          this.rear = 0;               // 尾指针
+          this.front = 0;              // 头指针
+          this.items = new Array(10);  // 队列长度固定为10
         }
 
         // 向队列添加元素
         enqueue(element) {
+          
           this.items[this.rear] = element;
           this.rear++;
         }
@@ -262,9 +263,13 @@
 
 
       // 全局变量
-      var currentNumber = 1; // 当前预约号
-      var waitingQueue = new Queue(); // 候诊列表
-      var visitingQueue = new Queue(); // 就诊列表
+      var currentNumber = 1;   // 当前预约号
+      var waitingQueue;        // 候诊列表
+      var visitingQueue;       // 就诊列表
+
+      // 以顺序队列的形式进行声明
+      waitingQueue = new Queue(); 
+      visitingQueue = new Queue();
 
       $(function() {
         $(".tm-product-name").on("click", function() {
