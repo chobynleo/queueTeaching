@@ -228,6 +228,51 @@
       }
 
 
+      // 队列 - 链表实现
+      class ListNode {
+        constructor(v = null, n = null) {
+          this.val = v
+          this.next = n
+        }
+      }
+
+      class QueueByList {
+        constructor() {
+          let node = new ListNode()
+          this.front = node  // 虚拟头节点
+          this.rear = node   // 尾节点
+          this.count = 0
+          this.label = "linklist"
+        }
+
+        // 向队列添加元素
+        enqueue(element) {
+          let node = new ListNode(element)
+          this.rear.next = node
+          this.rear = node
+          this.count++
+        }
+
+        // 从队列中移除元素
+        dequeue() {
+          if(this.count == 1) this.rear = this.front
+          var result = this.front.next.val
+          this.front.next = this.front.next.next
+          this.count--
+          return result
+        }
+
+        // 查看队列的第一个元素
+        peek() {
+          if (!this.size) return
+          return this.front.next.val
+        }
+
+        // 查看队列有多少数据
+        size() {
+          return this.count
+        }
+      }
 
 
 
@@ -246,8 +291,8 @@
 
 
       // 以顺序队列的形式进行声明
-      waitingQueue = new CircleQueue(); 
-      visitingQueue = new CircleQueue();
+      waitingQueue = new QueueByList(); 
+      visitingQueue = new QueueByList();
 
 
 
