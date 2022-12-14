@@ -294,7 +294,7 @@
 
       // 队列 - 链表实现
       class ListNode {
-        constructor(v = -1, n = null) {
+        constructor(v = null, n = null) {
           this.val = v
           this.next = n
         }
@@ -303,9 +303,10 @@
       class QueueByList {
         constructor() {
           let node = new ListNode()
-          this.front = node
-          this.rear = node
-          this.size = 0
+          this.front = node  // 虚拟头节点
+          this.rear = node   // 尾节点
+          this.count = 0
+          this.label = "linklist"
         }
 
         // 向队列添加元素
@@ -313,14 +314,16 @@
           let node = new ListNode(element)
           this.rear.next = node
           this.rear = node
-          this.size++
+          this.count++
         }
 
         // 从队列中移除元素
         dequeue() {
-          if (!this.size) return
-          this.front = this.front.next
-          this.size--
+          if(this.count == 1) this.rear = this.front
+          var result = this.front.next.val
+          this.front.next = this.front.next.next
+          this.count--
+          return result
         }
 
         // 查看队列的第一个元素
@@ -331,7 +334,7 @@
 
         // 查看队列有多少数据
         size() {
-          return this.size
+          return this.count
         }
       }
 
@@ -352,13 +355,23 @@
       var waitingQueue;        // 候诊列表
       var visitingQueue;       // 就诊列表
 
+
       // 以顺序队列的形式进行声明
       // waitingQueue = new Queue(); 
       // visitingQueue = new Queue();
 
       // 以循环队列的形式进行声明
-      waitingQueue = new CircleQueue(); 
-      visitingQueue = new CircleQueue();
+      // waitingQueue = new CircleQueue(); 
+      // visitingQueue = new CircleQueue();
+
+      // 以链表队列的形式进行声明
+      waitingQueue = new QueueByList(); 
+      visitingQueue = new QueueByList();
+
+
+
+
+
 
 
 
@@ -404,6 +417,7 @@
         function enqueueForVisting() {
           if(waitingQueue.size()) {
             var patient = waitingQueue.dequeue();
+            console.log("patient", patient)
             visitingQueue.enqueue(patient)
             render(); // 渲染数据
           }
@@ -411,45 +425,64 @@
 
         // 渲染数据
         function render() {
-          // 渲染候诊列表
-          if (waitingQueue.size()) {
-            var items = waitingQueue.items;
-            var innerHTML = '';
-            for (var i in items) {
-              var data = '<tr>' + 
-                     '<th scope="row"></th>' +
-                     '<td class="tm-product-name">' + items[i].number + '</td>' +
-                     '<td>' + items[i].name + '</td>' + 
-                     '</tr>'
-              innerHTML += data;
+          var waitingItems = [], visitingItems = [];
+          if(waitingQueue.label == "linklist" || visitingQueue.label == "linklist") {
+            // 以链表的形式进行渲染
+            var head = waitingQueue.front
+            while(head.next) {
+              if(head.next.val)waitingItems.push(head.next.val)
+              head = head.next
             }
-            $("#queueListForWating").html(innerHTML);
+            console.log("waitingItems", waitingItems)
+            head = visitingQueue.front
+            while(head.next) {
+              if(head.next.val)visitingItems.push(head.next.val)
+              head = head.next
+            }
+            console.log("visitingItems", visitingItems)
           } else {
-            $("#queueListForWating").html('');
+            // 以数组的形式进行渲染
+            waitingItems = waitingQueue.items;
+            visitingItems = visitingQueue.items;
           }
 
-          // 渲染就诊列表
-          if (visitingQueue.size()) {
-            var items = visitingQueue.items;
-            var innerHTML = '';
-            for (var i in items) {
-              var data = '<tr>' + 
-                     '<td>' + 
-                        '<a href="#" class="tm-product-delete-link">' + 
-                          '<i class="far fa-user tm-product-delete-icon"></i>' + 
-                        '</a>' + 
-                      '</td>' +
-                     '<td class="tm-product-name">' + 
-                        items[i].number + '号' +
-                        items[i].name + 
-                      '</td>' + 
-                     '</tr>'
-              innerHTML += data;
+          // 渲染候诊列表
+          if (waitingQueue.size()) {
+              var innerHTML = '';
+              for (var i in waitingItems) {
+                var data = '<tr>' + 
+                      '<th scope="row"></th>' +
+                      '<td class="tm-product-name">' + waitingItems[i].number + '</td>' +
+                      '<td>' + waitingItems[i].name + '</td>' + 
+                      '</tr>'
+                innerHTML += data;
+              }
+              $("#queueListForWating").html(innerHTML);
+            } else {
+              $("#queueListForWating").html('');
             }
-            $("#queueListForVisiting").html(innerHTML);
-          } else {
-            $("#queueListForVisiting").html('');
-          }
+
+            // 渲染就诊列表
+            if (visitingQueue.size()) {
+              var innerHTML = '';
+            for (var i in visitingItems) {
+                var data = '<tr>' + 
+                      '<td>' + 
+                          '<a href="#" class="tm-product-delete-link">' + 
+                          '<i class="far fa-user tm-product-delete-icon"></i>' + 
+                          '</a>' + 
+                        '</td>' +
+                      '<td class="tm-product-name">' + 
+                        visitingItems[i].number + '号' +
+                        visitingItems[i].name + 
+                        '</td>' + 
+                      '</tr>'
+                innerHTML += data;
+              }
+              $("#queueListForVisiting").html(innerHTML);
+            } else {
+              $("#queueListForVisiting").html('');
+            }
         }
       });
 
