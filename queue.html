@@ -162,7 +162,7 @@
       
       /********************************version 0************************************/
 
-      // 队列 - 数组实现
+      // 顺序队列
       class Queue {
         constructor() {
           this.rear = 0;               // 尾指针
@@ -223,6 +223,74 @@
           console.error(`ArrayIndexOutOfBoundsException: Index ${this.rear} out of bounds for length ${this.items.length}`)
         }
       }
+
+      // 循环队列
+      class CircleQueue {
+          constructor() {
+            this.rear = 0;               // 尾指针
+            this.front = 0;              // 头指针
+            this.items = new Array(5);   // 队列长度固定
+            this.count = 0;              // 标志位
+          }
+
+          // 向队列添加元素
+          enqueue(element) {
+            if(!this.isFull()) {                 // 判断队列是否已满
+              this.items[this.rear] = element;   // 添加元素
+              this.rear++;                       // 尾指针加一
+              if(this.rear == this.items.length) this.rear = 0 // 尾指针重新计入循环
+              this.count++
+            } else {
+              this.error();                           // 溢出错误
+            }                
+          }
+
+          // 从队列中移除元素
+          dequeue() {
+            if (this.isEmpty()) {
+              return undefined;
+            }
+            const result = this.items[this.front];
+            delete this.items[this.front];
+            this.front++;
+            if(this.front == this.items.length) this.front = 0 // 头指针重新计入循环
+            this.count--
+            return result;
+          }
+
+          // 查看队列的第一个元素
+          peek() {
+            if (this.isEmpty()) {
+              return undefined;
+            }
+            return this.items[this.front];
+          }
+
+          // 查看队列是否为空
+          isEmpty() {
+            return this.count === 0;
+          }
+
+          // 查看队列有多少数据
+          size() {
+            return this.count;
+          }
+
+          // 判断队列是否已满
+          isFull() {
+            if(this.items.length == this.count) {
+              return true;
+            } else {
+              return false;
+            }
+          }
+
+          // 溢出错误
+          error() {
+            console.error(`ArrayIndexOutOfBoundsException: Index ${this.rear} out of bounds for length ${this.items.length}`)
+          }
+      }
+
 
       // 队列 - 链表实现
       class ListNode {
@@ -285,8 +353,14 @@
       var visitingQueue;       // 就诊列表
 
       // 以顺序队列的形式进行声明
-      waitingQueue = new Queue(); 
-      visitingQueue = new Queue();
+      // waitingQueue = new Queue(); 
+      // visitingQueue = new Queue();
+
+      // 以循环队列的形式进行声明
+      waitingQueue = new CircleQueue(); 
+      visitingQueue = new CircleQueue();
+
+
 
       $(function() {
         $(".tm-product-name").on("click", function() {
