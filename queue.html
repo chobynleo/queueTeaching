@@ -167,14 +167,17 @@
         constructor() {
           this.rear = 0;               // 尾指针
           this.front = 0;              // 头指针
-          this.items = new Array(10);  // 队列长度固定为10
+          this.items = new Array(5);   // 队列长度固定
         }
 
         // 向队列添加元素
         enqueue(element) {
-          
-          this.items[this.rear] = element;
-          this.rear++;
+          if(!this.isFull()) {                 // 判断队列是否已满
+            this.items[this.rear] = element;   // 添加元素
+            this.rear++;                       // 尾指针加一
+          } else {
+            this.error();                           // 溢出错误
+          }                
         }
 
         // 从队列中移除元素
@@ -204,6 +207,20 @@
         // 查看队列有多少数据
         size() {
           return this.rear - this.front;
+        }
+
+        // 判断队列是否已满
+        isFull() {
+          if(this.rear >= this.items.length) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+
+        // 溢出错误
+        error() {
+          console.error(`ArrayIndexOutOfBoundsException: Index ${this.rear} out of bounds for length ${this.items.length}`)
         }
       }
 
