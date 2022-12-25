@@ -122,8 +122,10 @@
               this.rear++;                       // 尾指针加一
               if(this.rear == this.items.length) this.rear = 0 // 尾指针重新计入循环
               this.count++
+              return true;
             } else {
               this.error();                           // 溢出错误
+              return false;
             }                
           }
 
@@ -196,7 +198,8 @@
 
 
 
-
+      // 当前就诊队列 长度设置为100
+      visitingQueue.items.length = 1000;
 
 
 
@@ -228,9 +231,11 @@
           name: patientName                     // “病人”的姓名字段——赋值为输入框中“用户姓名”
         }
 
-        waitingQueue.enqueue(patient);          // 将“病人”对象作为参数，入队列
-        render();                               // 渲染数据
-        currentNumber++;                        // 全局的预约号信息自加
+        var bool = waitingQueue.enqueue(patient);   // 将“病人”对象作为参数，入队列
+        render();                                   // 渲染数据
+        if(bool) {                                  // 如果入队成功
+          currentNumber++;                          // 全局的预约号信息自加
+        }
       }
 
       // 叫号-候诊出队列-就诊入队列
@@ -259,7 +264,9 @@
           }
         } else {
           // 以数组的形式进行渲染
-          waitingItems = waitingQueue.items;
+          var temp = waitingQueue.items;
+          // 按照预约号优先级排序
+          waitingItems = sortByNumber(temp);
           visitingItems = visitingQueue.items;
         }
 
@@ -302,6 +309,29 @@
           }
       }
 
+      function sortByNumber(arr) {
+        var [..._arr] = arr;
+        var soutArr = [];
+        var count = _arr.length;
+        while(count--) {
+          var min = -1, target = Infinity;
+          for (let i = 0; i < _arr.length; i++) {
+            if (_arr[i]) {
+              if (_arr[i].number < target) {
+                min = i;
+                target = _arr[i].number;
+              }
+            }
+          }
+          
+          var temp;
+          if (min != -1) {
+            temp = _arr.splice(min, 1)
+            soutArr.push(temp[0])
+          }
+        }
+        return soutArr;
+      }
     </script>
   </body>
 </html>
