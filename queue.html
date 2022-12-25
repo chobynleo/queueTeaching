@@ -120,8 +120,10 @@
           if(!this.isFull()) {                 // 判断队列是否已满
             this.items[this.rear] = element;   // 添加元素
             this.rear++;                       // 尾指针加一
+            return true;                       // 表示入队成功
           } else {
             this.error();                           // 溢出错误
+            return false;                           // 入队失败
           }                
         }
 
@@ -224,9 +226,11 @@
           name: patientName                     // “病人”的姓名字段——赋值为输入框中“用户姓名”
         }
 
-        waitingQueue.enqueue(patient);          // 将“病人”对象作为参数，入队列
-        render();                               // 渲染数据
-        currentNumber++;                        // 全局的预约号信息自加
+        var bool = waitingQueue.enqueue(patient);   // 将“病人”对象作为参数，入队列
+        if (bool) {                                 // 如果入队成功
+          currentNumber++;                          // 全局的预约号信息自加
+        }
+        render();                                   // 渲染数据
       }
 
       // 叫号-候诊出队列-就诊入队列
