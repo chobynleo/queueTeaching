@@ -23,60 +23,6 @@
     <script src="js/jquery-3.3.1.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/bootstrap-table.js"></script>
-    <nav class="navbar navbar-expand-xl" >
-      <div class="container h-100">
-        <a class="navbar-brand" href="#">
-          <h1 class="tm-site-title mb-0">广海核酸检测系统</h1>
-        </a>
-        <button
-          class="navbar-toggler ml-auto mr-0"
-          type="button"
-          data-toggle="collapse"
-          data-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <i class="fas fa-bars tm-nav-icon"></i>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav mx-auto h-100">
-            <li class="nav-item">
-              <a class="nav-link" href="list.html">
-                <i class="fas fa-tachometer-alt"></i> 核酸抽样
-                <span class="sr-only">(current)</span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" href="queue.html">
-                <i class="far fa-file-alt"></i>排队系统
-              </a>
-            </li>
-            <li class="nav-item dropdown">
-              <a
-                class="nav-link dropdown-toggle"
-                href="#"
-                id="navbarDropdown"
-                role="button"
-                data-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false">
-                <i class="fas fa-cog"></i>
-                <span> 系统设置</span>
-              </a>
-            </li>
-          </ul>
-          <ul class="navbar-nav">
-            <li class="nav-item">
-              <a class="nav-link d-block" href="#">
-                &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<b>欢迎使用</b>
-              </a>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
     <div class="container mt-5">
       <div class="row tm-content-row">
         <div class="col-sm-12 col-md-12 col-lg-8 col-xl-8 tm-block-col">
@@ -256,112 +202,105 @@
 
 
 
-      $(function() {
-        $(".tm-product-name").on("click", function() {
-          // window.location.href = "edit-product.html";
-        });
 
-        // 点击取号按钮
-        $("#waitingButton").click(function(){
-          $("#myModal").modal();
-          $("#input").val("")
-        });
-        
-        // 点击叫号按钮
-        $("#visitingButton").click(function(){
-          enqueueForVisting();
-        });
-
-        // 点击录入按钮
-        $("#enqueue").click(function(){
-          $("#myModal").modal("hide");
-          var name = $("#input").val();
-          enqueueForWaiting(name) // 取号-候诊入队列
-          $("#input").val("")
-        });
-
-        // 取号-候诊入队列
-        function enqueueForWaiting(patientName) {
-          var patient = {
-            number: currentNumber,
-            name: patientName
-          }
-
-          // waitingQueue.push(patient)
-          waitingQueue.enqueue(patient);
-          render(); // 渲染数据
-          currentNumber++;
-        }
-
-        // 叫号-候诊出队列-就诊入队列
-        function enqueueForVisting() {
-          if(waitingQueue.size()) {
-            var patient = waitingQueue.dequeue();
-            visitingQueue.enqueue(patient)
-            render(); // 渲染数据
-          }
-        }
-
-        // 渲染数据
-        function render() {
-          var waitingItems = [], visitingItems = [];
-          if(waitingQueue.label == "linklist" || visitingQueue.label == "linklist") {
-            // 以链表的形式进行渲染
-            var head = waitingQueue.front
-            while(head.next) {
-              if(head.next.val)waitingItems.push(head.next.val)
-              head = head.next
-            }
-            head = visitingQueue.front
-            while(head.next) {
-              if(head.next.val)visitingItems.push(head.next.val)
-              head = head.next
-            }
-          } else {
-            // 以数组的形式进行渲染
-            waitingItems = waitingQueue.items;
-            visitingItems = visitingQueue.items;
-          }
-
-          // 渲染候诊列表
-          if (waitingQueue.size()) {
-              var innerHTML = '';
-              for (var i in waitingItems) {
-                var data = '<tr>' + 
-                      '<th scope="row"></th>' +
-                      '<td class="tm-product-name">' + waitingItems[i].number + '</td>' +
-                      '<td>' + waitingItems[i].name + '</td>' + 
-                      '</tr>'
-                innerHTML += data;
-              }
-              $("#queueListForWating").html(innerHTML);
-            } else {
-              $("#queueListForWating").html('');
-            }
-
-            // 渲染就诊列表
-            if (visitingQueue.size()) {
-              var innerHTML = '';
-            for (var i in visitingItems) {
-                var data = '<tr>' + 
-                      '<td>' + 
-                          '<a href="#" class="tm-product-delete-link">' + 
-                          '<i class="far fa-user tm-product-delete-icon"></i>' + 
-                          '</a>' + 
-                        '</td>' +
-                      '<td class="tm-product-name">' + 
-                        visitingItems[i].number + '号' +
-                        visitingItems[i].name + 
-                        '</td>' + 
-                      '</tr>'
-                innerHTML += data;
-              }
-              $("#queueListForVisiting").html(innerHTML);
-            } else {
-              $("#queueListForVisiting").html('');
-            }
-        }
+      // 点击取号按钮
+      $("#waitingButton").click(function(){ // 按钮点击事件
+        $("#myModal").modal();              // 调出模态框-进入录入信息表单页面
+        $("#input").val("")                 // 重置输入框，将姓名信息置空
       });
+      
+      // 点击叫号按钮
+      $("#visitingButton").click(function(){    // 按钮点击事件
+        enqueueForVisting();                    // 触发“当前就诊”的入队函数     
+      });
+
+      // 点击录入按钮
+      $("#enqueue").click(function(){           // 按钮点击事件
+        $("#myModal").modal("hide");            // 隐藏模态框-用户已经填完姓名信息
+        var name = $("#input").val();           // 获取输入框的值——用户姓名
+        enqueueForWaiting(name)                 // 触发“候诊名单”的入队函数——并把“用户姓名”作为参数传入函数
+      });
+
+      // 取号-候诊入队列
+      function enqueueForWaiting(patientName) { // “候诊名单”的入队函数——参数是“用户姓名”
+        var patient = {                         // 构造“病人”对象
+          number: currentNumber,                // “病人”的当前预约号字段
+          name: patientName                     // “病人”的姓名字段——赋值为输入框中“用户姓名”
+        }
+
+        waitingQueue.enqueue(patient);          // 将“病人”对象作为参数，入队列
+        render();                               // 渲染数据
+        currentNumber++;                        // 全局的预约号信息自加
+      }
+
+      // 叫号-候诊出队列-就诊入队列
+      function enqueueForVisting() {              // “当前就诊”的入队函数
+        if(waitingQueue.size()) {                 // 判断“候诊名单”队列是否为空，如果为空则不执行以下逻辑
+          var patient = waitingQueue.dequeue();   // “候诊名单”队列的“病人”对象出列
+          visitingQueue.enqueue(patient)          // 将此“病人”对象 入 “当前就诊”队列
+          render();                               // 渲染数据
+        }
+      }
+
+      // 渲染数据
+      function render() {
+        var waitingItems = [], visitingItems = [];
+        if(waitingQueue.label == "linklist" || visitingQueue.label == "linklist") {
+          // 以链表的形式进行渲染
+          var head = waitingQueue.front
+          while(head.next) {
+            if(head.next.val)waitingItems.push(head.next.val)
+            head = head.next
+          }
+          head = visitingQueue.front
+          while(head.next) {
+            if(head.next.val)visitingItems.push(head.next.val)
+            head = head.next
+          }
+        } else {
+          // 以数组的形式进行渲染
+          waitingItems = waitingQueue.items;
+          visitingItems = visitingQueue.items;
+        }
+
+        // 渲染候诊列表
+        if (waitingQueue.size()) {
+            var innerHTML = '';
+            for (var i in waitingItems) {
+              var data = '<tr>' + 
+                    '<th scope="row"></th>' +
+                    '<td class="tm-product-name">' + waitingItems[i].number + '</td>' +
+                    '<td>' + waitingItems[i].name + '</td>' + 
+                    '</tr>'
+              innerHTML += data;
+            }
+            $("#queueListForWating").html(innerHTML);
+          } else {
+            $("#queueListForWating").html('');
+          }
+
+          // 渲染就诊列表
+          if (visitingQueue.size()) {
+            var innerHTML = '';
+          for (var i in visitingItems) {
+              var data = '<tr>' + 
+                    '<td>' + 
+                        '<a href="#" class="tm-product-delete-link">' + 
+                        '<i class="far fa-user tm-product-delete-icon"></i>' + 
+                        '</a>' + 
+                      '</td>' +
+                    '<td class="tm-product-name">' + 
+                      visitingItems[i].number + '号' +
+                      visitingItems[i].name + 
+                      '</td>' + 
+                    '</tr>'
+              innerHTML += data;
+            }
+            $("#queueListForVisiting").html(innerHTML);
+          } else {
+            $("#queueListForVisiting").html('');
+          }
+      }
 
     </script>
   </body>
